@@ -1,0 +1,39 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Android
+/android/.gradle/
+/.gradle/
+**/local.properties
+local.properties
+
+# iOS
+Pods/
+ios/Pods/
+ios/Flutter/Flutter.framework
+
+# Visual Studio Code
+.vscode/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# Generated files
+**/generated_plugin_registrant.*
+
+# Logs
+*.log
+
+# macOS
+*.DS_Store
+
+# Windows
+Thumbs.db
+
+# Others
+.flutter-plugins
+.flutter-plugins-dependencies
