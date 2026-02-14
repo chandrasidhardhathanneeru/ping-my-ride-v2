@@ -10,6 +10,7 @@ import '../auth/login_page.dart';
 import '../bookings/bookings_list_page.dart';
 import '../admin/bus_timing_page.dart';
 import '../admin/management_page.dart';
+import '../admin/drivers_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -30,6 +31,28 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _loadUserProfile() async {
     final authService = Provider.of<AuthService>(context, listen: false);
+    
+    // Debug: Log current user type
+    debugPrint('ProfilePage: Loading profile for user type: ${authService.currentUserType?.name}');
+    
+    // Check if user is admin BEFORE attempting to fetch profile
+    if (authService.currentUserType == UserType.admin) {
+      // Admin user - set hardcoded profile data directly
+      debugPrint('ProfilePage: Admin user detected, loading hardcoded profile');
+      setState(() {
+        _userProfile = {
+          'name': 'TANNEERU CHANDRA SIDHARDHA',
+          'email': authService.currentUserEmail ?? 'chandrasidhardhatanneeru@gmail.com',
+          'phone': '7204940447',
+          'userType': 'admin',
+        };
+        _isLoading = false;
+      });
+      return;
+    }
+    
+    // For students and drivers - fetch from Firebase
+    debugPrint('ProfilePage: Fetching profile from Firebase for ${authService.currentUserType?.name}');
     final profile = await authService.getCurrentUserProfile();
     setState(() {
       _userProfile = profile;
@@ -138,8 +161,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         icon: Icons.person_outline,
                         label: 'Full Name',
                         value: userName,
-                        isEditable: true,
-                        onTap: () => _showEditDialog(context, 'name', userName),
+                        isEditable: userType != UserType.admin,
+                        onTap: userType != UserType.admin 
+                            ? () => _showEditDialog(context, 'name', userName)
+                            : null,
                       ),
                       _InfoItem(
                         icon: Icons.email_outlined,
@@ -150,8 +175,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         icon: Icons.phone_outlined,
                         label: 'Phone',
                         value: userPhone,
-                        isEditable: true,
-                        onTap: () => _showEditDialog(context, 'phone', userPhone),
+                        isEditable: userType != UserType.admin,
+                        onTap: userType != UserType.admin
+                            ? () => _showEditDialog(context, 'phone', userPhone)
+                            : null,
                       ),
                       _InfoItem(
                         icon: Icons.badge_outlined,
@@ -642,9 +669,34 @@ $result
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.refresh,
+                  Icons.people,
                   size: 20,
                   color: Colors.purple,
+                ),
+              ),
+              title: const Text('View Drivers'),
+              subtitle: const Text('See all registered drivers'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DriversPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.refresh,
+                  size: 20,
+                  color: Colors.teal,
                 ),
               ),
               title: const Text('Refresh Data'),
@@ -802,6 +854,20 @@ $result
   Future<void> _updateUserProfile(BuildContext context, String field, String value) async {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
+      
+      // Prevent admin profile updates (admin data is hardcoded)
+      if (authService.currentUserType == UserType.admin) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Admin profile cannot be edited'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+      
       final user = authService.currentUser;
 
       if (user != null) {

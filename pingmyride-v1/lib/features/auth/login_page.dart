@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../../core/models/user_type.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/auth_service.dart';
 import '../../shared/widgets/custom_button.dart';
 import '../../shared/widgets/custom_text_field.dart';
 import '../navigation/main_navigation.dart';
@@ -45,7 +47,10 @@ class _LoginPageState extends State<LoginPage> {
       final enteredPassword = _passwordController.text;
       
       if (enteredEmail == hardcodedAdminEmail && enteredPassword == hardcodedAdminPassword) {
-        // Admin login successful - redirect to admin dashboard
+        // Admin login successful - set admin state in AuthService
+        final authService = Provider.of<AuthService>(context, listen: false);
+        authService.setAdminLogin(hardcodedAdminEmail);
+        
         setState(() {
           _isLoading = false;
         });

@@ -207,8 +207,28 @@ class AuthService extends ChangeNotifier {
     return _isAuthenticated && _currentUserType == requiredRole;
   }
 
+  // Set admin login state for hardcoded admin
+  void setAdminLogin(String email) {
+    _currentUserType = UserType.admin;
+    _currentUserEmail = email;
+    _isAuthenticated = true;
+    notifyListeners();
+  }
+
   // Get current user profile data
   Future<Map<String, dynamic>?> getCurrentUserProfile() async {
+    // Handle hardcoded admin login
+    if (_currentUserType == UserType.admin && _auth.currentUser == null) {
+      // Return hardcoded admin profile data
+      return {
+        'name': 'TANNEERU CHANDRA SIDHARDHA',
+        'email': _currentUserEmail ?? 'chandrasidhardhatanneeru@gmail.com',
+        'phone': '7204940447',
+        'userType': 'admin',
+      };
+    }
+    
+    // For regular Firebase users (students/drivers)
     if (_auth.currentUser != null) {
       try {
         final doc = await _firestore

@@ -167,12 +167,26 @@ class _MainNavigationState extends State<MainNavigation> {
 
     final pages = _getPages();
     
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
-      bottomNavigationBar: Container(
+    // Prevent back navigation to login screen
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        // Prevent navigation back to login screen
+        if (didPop) return;
+        // Show a message or do nothing - user cannot go back
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Use logout button to exit'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: pages,
+        ),
+        bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
@@ -187,6 +201,7 @@ class _MainNavigationState extends State<MainNavigation> {
           destinations: _getNavDestinations(),
           animationDuration: const Duration(milliseconds: 400),
         ),
+      ),
       ),
     );
   }
