@@ -60,6 +60,78 @@ class _LoginPageState extends State<LoginPage> {
             orElse: () => UserType.student,
           );
 
+          // Check email verification for students and drivers
+          if ((userType == UserType.student || userType == UserType.driver) && !credential.user!.emailVerified) {
+            await auth.signOut();
+            setState(() {
+              _isLoading = false;
+            });
+
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Row(
+                    children: const [
+                      Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text('Email Not Verified'),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Please verify your email before logging in.',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        '1. Check your inbox for verification email\\n2. Click the verification link\\n3. Return here to login',
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton.icon(
+                        onPressed: () async {
+                          try {
+                            await credential.user!.sendEmailVerification();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Verification email sent! Check your inbox.'),
+                                  backgroundColor: AppTheme.successColor,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to send email: $e'),
+                                  backgroundColor: AppTheme.errorColor,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.email),
+                        label: const Text('Resend Verification Email'),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return;
+          }
+
           setState(() {
             _isLoading = false;
           });

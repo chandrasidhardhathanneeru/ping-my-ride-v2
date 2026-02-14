@@ -59,7 +59,7 @@ class _SignUpPageState extends State<SignUpPage>
     });
 
     try {
-      final success = await _authService.signUp(
+      final result = await _authService.signUp(
         _nameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
@@ -73,24 +73,66 @@ class _SignUpPageState extends State<SignUpPage>
       });
 
       if (mounted) {
-        if (success) {
-          // Navigate to main navigation with selected user type
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => MainNavigation(userType: userType),
-            ),
-          );
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Account created successfully as ${userType.label}'),
-              backgroundColor: AppTheme.successColor,
-            ),
-          );
+        if (result['success'] == true) {
+          // Check if email verification is required (students and drivers)
+          if (result['requiresVerification'] == true) {
+            // Show verification message
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: Row(
+                  children: const [
+                    Icon(Icons.mark_email_read, color: AppTheme.primaryColor),
+                    SizedBox(width: 8),
+                    Text('Verify Your Email'),
+                  ],
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      result['message'] ?? 'Verification email sent!',
+                      style: const TextStyle(fontSize: 15),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '📧 Check your inbox\\n🔗 Click the verification link\\n✅ Then login to continue',
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close dialog
+                      Navigator.pop(context); // Return to login page
+                    },
+                    child: const Text('Got it, Go to Login'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // For admins only, navigate directly
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => MainNavigation(userType: userType),
+              ),
+            );
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Account created successfully as ${userType.label}'),
+                backgroundColor: AppTheme.successColor,
+              ),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Registration failed. Please check your details and try again'),
+              content: Text(result['message'] ?? 'Registration failed. Please try again'),
               backgroundColor: AppTheme.errorColor,
             ),
           );
@@ -148,7 +190,11 @@ class _SignUpPageState extends State<SignUpPage>
           const SizedBox(height: 12),
           CustomTextField(
             label: 'Email',
-            hint: 'Enter your email',
+            hint: userType == UserType.student 
+                ? 'Enter your KLU email (e.g., 2200030123@klu.ac.in)' 
+                : userType == UserType.driver
+                    ? 'Enter your KLU email (e.g., driver@klu.ac.in)'
+                    : 'Enter your email',
             controller: _emailController,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
@@ -156,8 +202,30 @@ class _SignUpPageState extends State<SignUpPage>
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                return 'Please enter a valid email';
+              
+              // Student-specific email validation
+              if (userType == UserType.student) {
+                if (!value.endsWith('@klu.ac.in')) {
+                  return 'Please use your KLU email (@klu.ac.in)';
+                }
+                final localPart = value.split('@')[0];
+                if (!RegExp(r'^\d+$').hasMatch(localPart)) {
+                  return 'Email must be in format: digits@klu.ac.in';
+                }
+              } else if (userType == UserType.driver) {
+                // Driver-specific email validation - must be @klu.ac.in
+                if (!value.endsWith('@klu.ac.in')) {
+                  return 'Drivers must use KLU email (@klu.ac.in)';
+                }
+                // Basic format check
+                if (!RegExp(r'^[\w-\.]+@klu\.ac\.in$').hasMatch(value)) {
+                  return 'Please enter a valid @klu.ac.in email';
+                }
+              } else {
+                // General email validation for admins only
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                  return 'Please enter a valid email';
+                }
               }
               return null;
             },

@@ -48,7 +48,7 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password, UserType userType) async {
+  Future<Map<String, dynamic>> login(String email, String password, UserType userType) async {
     try {
       // Sign in with Firebase Auth
       final credential = await _auth.signInWithEmailAndPassword(
@@ -71,30 +71,56 @@ class AuthService extends ChangeNotifier {
           );
 
           if (storedUserType == userType) {
+            // Check email verification for students and drivers
+            if ((userType == UserType.student || userType == UserType.driver) && !credential.user!.emailVerified) {
+              await _auth.signOut();
+              return {
+                'success': false,
+                'error': 'email_not_verified',
+                'message': 'Please verify your email before logging in. Check your inbox for verification link.',
+              };
+            }
+
             _currentUserType = userType;
             _currentUserEmail = email;
             _isAuthenticated = true;
             notifyListeners();
-            return true;
+            return {'success': true};
           } else {
             // Wrong user type, sign out
             await _auth.signOut();
-            return false;
+            return {
+              'success': false,
+              'error': 'wrong_user_type',
+              'message': 'Invalid credentials for this user type',
+            };
           }
         } else {
           // User document doesn't exist, sign out
           await _auth.signOut();
-          return false;
+          return {
+            'success': false,
+            'error': 'user_not_found',
+            'message': 'User account not found',
+          };
         }
       }
-      return false;
+      return {
+        'success': false,
+        'error': 'unknown',
+        'message': 'Login failed',
+      };
     } catch (e) {
       debugPrint('Login error: $e');
-      return false;
+      return {
+        'success': false,
+        'error': 'exception',
+        'message': e.toString(),
+      };
     }
   }
 
-  Future<bool> signUp(
+  Future<Map<String, dynamic>> signUp(
     String name, 
     String email, 
     String password, 
@@ -122,16 +148,38 @@ class AuthService extends ChangeNotifier {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
+        // Send email verification for students and drivers
+        if (userType == UserType.student || userType == UserType.driver) {
+          await credential.user!.sendEmailVerification();
+          // Don't set authenticated state until verified
+          await _auth.signOut();
+          return {
+            'success': true,
+            'requiresVerification': true,
+            'message': 'Verification email sent! Please check your inbox and verify your email before logging in.',
+          };
+        }
+
+        // For admins only, proceed as normal
         _currentUserType = userType;
         _currentUserEmail = email;
         _isAuthenticated = true;
         notifyListeners();
-        return true;
+        return {
+          'success': true,
+          'requiresVerification': false,
+        };
       }
-      return false;
+      return {
+        'success': false,
+        'message': 'Failed to create account',
+      };
     } catch (e) {
       debugPrint('Sign up error: $e');
-      return false;
+      return {
+        'success': false,
+        'message': e.toString(),
+      };
     }
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/user_type.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/services/auth_service.dart';
@@ -9,6 +11,7 @@ import '../admin/management_page.dart';
 import '../admin/analytics_page.dart';
 import '../profile/profile_page.dart';
 import '../driver/driver_home_page.dart';
+import '../auth/login_page.dart';
 
 class MainNavigation extends StatefulWidget {
   final UserType userType;
@@ -21,6 +24,82 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  bool _isVerifyingRole = true;
+  bool _roleValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _verifyUserRole();
+  }
+
+  /// Verify that the authenticated user's role matches the provided userType
+  /// This prevents unauthorized access to other role dashboards
+  Future<void> _verifyUserRole() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      
+      if (user == null) {
+        // No authenticated user, redirect to login
+        _redirectToLogin('Authentication required');
+        return;
+      }
+
+      // Fetch user's actual role from Firestore
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!doc.exists) {
+        _redirectToLogin('User data not found');
+        return;
+      }
+
+      final userData = doc.data()!;
+      final actualUserType = UserType.values.firstWhere(
+        (type) => type.name == userData['userType'],
+        orElse: () => UserType.student,
+      );
+
+      // Verify role matches
+      if (actualUserType != widget.userType) {
+        // Role mismatch - potential security issue
+        await FirebaseAuth.instance.signOut();
+        _redirectToLogin('Access denied: Invalid role');
+        return;
+      }
+
+      // Role verified successfully
+      if (mounted) {
+        setState(() {
+          _roleValid = true;
+          _isVerifyingRole = false;
+        });
+      }
+    } catch (e) {
+      _redirectToLogin('Verification failed: $e');
+    }
+  }
+
+  void _redirectToLogin(String message) {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+      
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      });
+    }
+  }
 
   List<Widget> _getPages() {
     switch (widget.userType) {
@@ -50,6 +129,31 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading screen while verifying user role
+    if (_isVerifyingRole) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Verifying access...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Only show navigation if role is verified
+    if (!_roleValid) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Access denied'),
+        ),
+      );
+    }
+
     final pages = _getPages();
     
     return Scaffold(
