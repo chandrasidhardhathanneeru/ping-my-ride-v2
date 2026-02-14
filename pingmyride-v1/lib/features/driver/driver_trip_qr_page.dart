@@ -4,6 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../core/models/trip_qr.dart';
 import '../../core/services/trip_qr_service.dart';
+import '../../core/services/location_manager.dart';
 import '../../core/theme/app_theme.dart';
 
 /// Driver page to display trip QR code for students to scan
@@ -321,7 +322,7 @@ class DriverTripQRPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('End Trip'),
-        content: const Text('Are you sure you want to end this trip? The QR code will be deactivated.'),
+        content: const Text('Are you sure you want to end this trip? The QR code will be deactivated and location tracking will stop.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -337,13 +338,19 @@ class DriverTripQRPage extends StatelessWidget {
 
     if (confirm == true && context.mounted) {
       final tripQRService = Provider.of<TripQRService>(context, listen: false);
+      final locationManager = Provider.of<LocationManager>(context, listen: false);
+      
+      // Stop location tracking
+      await locationManager.stopTracking();
+      
+      // Deactivate trip QR
       final success = await tripQRService.deactivateTripQR(tripQR.id);
 
       if (context.mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Trip ended successfully'),
+              content: Text('Trip ended successfully. Location tracking stopped.'),
               backgroundColor: Colors.green,
             ),
           );

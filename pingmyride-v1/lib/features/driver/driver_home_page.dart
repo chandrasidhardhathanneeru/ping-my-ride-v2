@@ -7,6 +7,7 @@ import '../../core/models/trip_qr.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/services/trip_qr_service.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/location_manager.dart';
 import '../../core/theme/app_theme.dart';
 import 'driver_trip_qr_page.dart';
 import 'driver_student_list_page.dart';
@@ -678,13 +679,29 @@ class _DriverHomePageState extends State<DriverHomePage> {
     );
 
     if (tripQR != null && mounted) {
+      // Start location tracking when trip begins
+      final locationManager = Provider.of<LocationManager>(context, listen: false);
+      await locationManager.initialize();
+      await locationManager.startTracking(busId: bus.id);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Trip started! Location tracking is active.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      
       // Navigate to QR page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DriverTripQRPage(tripQR: tripQR),
-        ),
-      );
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DriverTripQRPage(tripQR: tripQR),
+          ),
+        );
+      }
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

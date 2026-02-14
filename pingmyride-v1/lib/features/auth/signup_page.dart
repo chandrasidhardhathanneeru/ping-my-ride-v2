@@ -36,7 +36,8 @@ class _SignUpPageState extends State<SignUpPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    // Only Student and Driver tabs (Admin signup removed)
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -378,6 +379,7 @@ class _SignUpPageState extends State<SignUpPage>
                           labelColor: Theme.of(context).colorScheme.onPrimary,
                           unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
                           tabs: UserType.values
+                              .where((type) => type != UserType.admin) // Exclude admin
                               .map((type) => Tab(
                                     icon: Icon(_getIconForUserType(type)),
                                     text: type.label,
@@ -391,6 +393,7 @@ class _SignUpPageState extends State<SignUpPage>
                         child: TabBarView(
                           controller: _tabController,
                           children: UserType.values
+                              .where((type) => type != UserType.admin) // Exclude admin
                               .map((type) => SingleChildScrollView(
                                     child: _buildSignUpForm(type),
                                   ))

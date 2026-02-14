@@ -129,6 +129,14 @@ class AuthService extends ChangeNotifier {
     UserType userType
   ) async {
     try {
+      // Block admin signups - admins cannot sign up through the app
+      if (userType == UserType.admin) {
+        return {
+          'success': false,
+          'message': 'Admin accounts cannot be created through signup. Please contact system administrator.',
+        };
+      }
+      
       // Create user with Firebase Auth
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,

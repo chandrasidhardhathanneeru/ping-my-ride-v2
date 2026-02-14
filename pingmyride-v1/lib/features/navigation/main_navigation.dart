@@ -37,6 +37,17 @@ class _MainNavigationState extends State<MainNavigation> {
   /// This prevents unauthorized access to other role dashboards
   Future<void> _verifyUserRole() async {
     try {
+      // Skip Firebase verification for admin - admin uses hardcoded login
+      if (widget.userType == UserType.admin) {
+        if (mounted) {
+          setState(() {
+            _roleValid = true;
+            _isVerifyingRole = false;
+          });
+        }
+        return;
+      }
+      
       final user = FirebaseAuth.instance.currentUser;
       
       if (user == null) {

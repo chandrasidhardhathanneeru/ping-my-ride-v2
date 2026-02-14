@@ -37,7 +37,31 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Use Firebase Auth directly to sign in
+      // Hardcoded Admin Login Check
+      const hardcodedAdminEmail = 'chandrasidhardhatanneeru@gmail.com';
+      const hardcodedAdminPassword = 'Siddu*1906?';
+      
+      final enteredEmail = _emailController.text.trim();
+      final enteredPassword = _passwordController.text;
+      
+      if (enteredEmail == hardcodedAdminEmail && enteredPassword == hardcodedAdminPassword) {
+        // Admin login successful - redirect to admin dashboard
+        setState(() {
+          _isLoading = false;
+        });
+        
+        if (mounted) {
+          // Navigate to admin dashboard
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const MainNavigation(userType: UserType.admin),
+            ),
+          );
+        }
+        return;
+      }
+      
+      // Use Firebase Auth directly to sign in for students and drivers
       final auth = FirebaseAuth.instance;
       final firestore = FirebaseFirestore.instance;
       
@@ -59,6 +83,24 @@ class _LoginPageState extends State<LoginPage> {
             (type) => type.name == userData['userType'],
             orElse: () => UserType.student,
           );
+
+          // Validate driver email domain
+          if (userType == UserType.driver && !_emailController.text.trim().endsWith('@klu.ac.in')) {
+            await auth.signOut();
+            setState(() {
+              _isLoading = false;
+            });
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Driver login requires @klu.ac.in email domain'),
+                  backgroundColor: AppTheme.errorColor,
+                ),
+              );
+            }
+            return;
+          }
 
           // Check email verification for students and drivers
           if ((userType == UserType.student || userType == UserType.driver) && !credential.user!.emailVerified) {
