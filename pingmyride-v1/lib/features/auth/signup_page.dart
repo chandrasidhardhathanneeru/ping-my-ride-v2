@@ -108,7 +108,11 @@ class _SignUpPageState extends State<SignUpPage>
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context); // Close dialog
-                      Navigator.pop(context); // Return to login page
+                      // Navigate to login and clear all routes to prevent black screen
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        (route) => false,
+                      );
                     },
                     child: const Text('Got it, Go to Login'),
                   ),

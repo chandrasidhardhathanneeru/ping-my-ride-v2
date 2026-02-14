@@ -11,6 +11,7 @@ import '../admin/management_page.dart';
 import '../admin/analytics_page.dart';
 import '../profile/profile_page.dart';
 import '../driver/driver_home_page.dart';
+import '../driver/driver_route_page.dart';
 import '../auth/login_page.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -491,8 +492,7 @@ class RoutePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This is essentially the same as DriverHomePage
-    return const DriverHomePage();
+    return const DriverRoutePage();
   }
 }
 

@@ -9,7 +9,7 @@ import 'core/services/theme_service.dart';
 import 'core/services/location_manager.dart';
 import 'core/services/tracking_service.dart';
 import 'core/services/trip_qr_service.dart';
-import 'features/auth/login_page.dart';
+import 'features/auth/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeService.themeMode,
-            home: const LoginPage(),
+            home: const AuthWrapper(), // Check auth state on app launch
             debugShowCheckedModeBanner: false,
           );
         },
