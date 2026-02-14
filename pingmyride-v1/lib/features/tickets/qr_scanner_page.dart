@@ -226,7 +226,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
@@ -244,7 +244,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
           // Processing indicator
           if (_isProcessing)
             Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
               child: const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -272,7 +272,7 @@ class ScannerOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
 
     final scanArea = Rect.fromCenter(

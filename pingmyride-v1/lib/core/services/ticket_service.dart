@@ -181,7 +181,7 @@ class TicketService extends ChangeNotifier {
         };
       }
 
-      final busData = busDoc.data()!;
+      // final busData = busDoc.data()!;
       // You can add driver email verification here if needed
       
       // Update ticket status

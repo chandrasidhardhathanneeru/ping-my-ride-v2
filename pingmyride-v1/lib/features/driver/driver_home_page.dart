@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/models/bus.dart';
 import '../../core/models/bus_route.dart';
-import '../../core/models/booking.dart';
 import '../../core/models/trip_qr.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/services/trip_qr_service.dart';
@@ -91,7 +90,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
           Icon(
             Icons.directions_bus_outlined,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -102,7 +101,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
           Text(
             'Contact admin to get assigned to a bus',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -122,7 +121,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -168,7 +167,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -356,7 +355,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/models/user_type.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/services/auth_service.dart';
 import '../home/home_page.dart';
@@ -206,7 +205,7 @@ class _SchedulePageState extends State<SchedulePage> {
                   Icon(
                     Icons.schedule_outlined,
                     size: 80,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -218,7 +217,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     'Bus timings will appear here once set by admin',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                   ),
                 ],
@@ -398,7 +397,7 @@ class StudentsPage extends StatelessWidget {
                 Icon(
                   Icons.group_outlined,
                   size: 80,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -409,7 +408,7 @@ class StudentsPage extends StatelessWidget {
                 Text(
                   'Contact admin to get assigned to a bus',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ],
@@ -452,7 +451,7 @@ class StudentsPage extends StatelessWidget {
                 Icon(
                   Icons.people_outline,
                   size: 80,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -464,7 +463,7 @@ class StudentsPage extends StatelessWidget {
                   'Students who book your bus will appear here',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ],
@@ -483,7 +482,7 @@ class StudentsPage extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   child: Icon(
                     Icons.person,
                     color: Theme.of(context).primaryColor,

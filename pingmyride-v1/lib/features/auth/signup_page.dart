@@ -112,56 +112,6 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  Widget _buildUserTypeCard(UserType userType, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isSelected 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.1) 
-            : Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected 
-              ? Theme.of(context).colorScheme.primary 
-              : Theme.of(context).colorScheme.outline,
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: isSelected 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Icon(
-              _getIconForUserType(userType),
-              size: 25,
-              color: isSelected 
-                  ? Theme.of(context).colorScheme.onPrimary 
-                  : Theme.of(context).textTheme.bodySmall?.color,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            userType.label,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              color: isSelected 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).textTheme.bodyMedium?.color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   IconData _getIconForUserType(UserType userType) {
     switch (userType) {
       case UserType.student:

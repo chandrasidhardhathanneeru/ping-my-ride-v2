@@ -33,7 +33,7 @@ class TicketQRPage extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       AppTheme.primaryColor,
-                      AppTheme.primaryColor.withOpacity(0.7),
+                      AppTheme.primaryColor.withValues(alpha: 0.7),
                     ],
                   ),
                 ),
@@ -47,7 +47,7 @@ class TicketQRPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -72,7 +72,7 @@ class TicketQRPage extends StatelessWidget {
                                 Text(
                                   ticket.routeName,
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -267,12 +267,12 @@ class TicketQRPage extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.white.withOpacity(0.9)),
+        Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.9)),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 13,
           ),
         ),

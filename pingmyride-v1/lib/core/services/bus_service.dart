@@ -1,6 +1,8 @@
-import 'package:flutter/foundation.dart';
+import'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import '../models/bus.dart';
 import '../models/bus_route.dart';
 import '../models/booking.dart';
@@ -385,6 +387,8 @@ class BusService extends ChangeNotifier {
     required String signature,
     String? selectedTimeSlot,
     DateTime? selectedBookingDate,
+    String? seatNumber,
+    String? gender,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -438,6 +442,12 @@ class BusService extends ChangeNotifier {
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       final userData = userDoc.data() ?? {};
 
+      // Generate QR code for the booking
+      final qrData = '$paymentId|${user.uid}|${bus.id}|${DateTime.now().millisecondsSinceEpoch}';
+      final bytes = utf8.encode(qrData);
+      final digest = sha256.convert(bytes);
+      final qrCode = digest.toString();
+
       // Create booking with payment details
       final booking = Booking(
         id: '', // Will be set by Firestore
@@ -461,6 +471,9 @@ class BusService extends ChangeNotifier {
         orderId: orderId,
         signature: signature,
         amount: 50.0, // Default booking fee from RazorpayConfig
+        seatNumber: seatNumber,
+        gender: gender,
+        qrCode: qrCode,
       );
 
       debugPrint('Creating booking with payment for user ${user.uid} on bus ${bus.busNumber}');

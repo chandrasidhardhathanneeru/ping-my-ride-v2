@@ -119,7 +119,7 @@ class _LocationTrackingPageState extends State<LocationTrackingPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+            color: isActive ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -312,7 +312,7 @@ class _LocationTrackingPageState extends State<LocationTrackingPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -373,7 +373,7 @@ class _LocationTrackingPageState extends State<LocationTrackingPage> {
                     final location = history[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                        backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                         child: Icon(
                           Icons.location_on,
                           color: AppTheme.primaryColor,

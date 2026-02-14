@@ -88,7 +88,7 @@ class LocationManager extends ChangeNotifier {
   Future<Position?> _getCurrentLocation() async {
     try {
       _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
       
       debugPrint(

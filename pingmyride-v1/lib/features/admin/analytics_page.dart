@@ -20,8 +20,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   int _confirmedBookings = 0;
   int _cancelledBookings = 0;
   double _totalRevenue = 0.0;
-  Map<String, int> _busBookingStats = {};
-  Map<String, int> _routeBookingStats = {};
+  final Map<String, int> _busBookingStats = {};
+  final Map<String, int> _routeBookingStats = {};
 
   @override
   void initState() {
@@ -209,7 +209,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -291,7 +291,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(
@@ -400,7 +400,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
                 Chip(
                   label: Text('${sortedBuses.length} Buses'),
-                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
                   labelStyle: const TextStyle(
                     fontSize: 12,
                     color: Colors.blue,
@@ -469,7 +469,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 ),
                 Chip(
                   label: Text('${sortedRoutes.length} Routes'),
-                  backgroundColor: Colors.green.withOpacity(0.1),
+                  backgroundColor: Colors.green.withValues(alpha: 0.1),
                   labelStyle: const TextStyle(
                     fontSize: 12,
                     color: Colors.green,
@@ -534,7 +534,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: percentage / 100,
-              backgroundColor: color.withOpacity(0.2),
+              backgroundColor: color.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
             ),
@@ -551,11 +551,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     final activeRoutes = busService.routes.where((r) => r.isActive).length;
     final totalCapacity = busService.buses.fold<int>(
       0,
-      (sum, bus) => sum + bus.capacity,
+      (total, bus) => total + bus.capacity,
     );
     final bookedSeats = busService.buses.fold<int>(
       0,
-      (sum, bus) => sum + bus.bookedSeats,
+      (total, bus) => total + bus.bookedSeats,
     );
     final availableSeats = totalCapacity - bookedSeats;
     final occupancyRate = totalCapacity > 0 
@@ -601,7 +601,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 20, color: color),

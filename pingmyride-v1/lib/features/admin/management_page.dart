@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/models/bus.dart';
 import '../../core/models/bus_route.dart';
-import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/custom_button.dart';
 import '../../shared/widgets/custom_text_field.dart';
 import 'bus_timing_page.dart';
@@ -413,7 +412,7 @@ class _AddBusDialogState extends State<AddBusDialog> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.person),
                         ),
-                        value: _selectedDriverId,
+                        initialValue: _selectedDriverId,
                         items: _availableDrivers.map((driver) {
                           return DropdownMenuItem<String>(
                             value: driver['id'] as String,
@@ -514,7 +513,7 @@ class _AddBusDialogState extends State<AddBusDialog> {
                         labelText: 'Route',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedRouteId,
+                      initialValue: _selectedRouteId,
                       items: busService.routes.map((route) {
                         return DropdownMenuItem(
                           value: route.id,

@@ -63,20 +63,20 @@ class BookingsListPage extends StatelessWidget {
           Icon(
             Icons.inbox_outlined,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             'No bookings found',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
           ),
           const SizedBox(height: 8),
           Text(
             'Your booking history will appear here',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
           ),
         ],
@@ -108,7 +108,7 @@ class BookingsListPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.1),
+                            color: accentColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -132,7 +132,7 @@ class BookingsListPage extends StatelessWidget {
                               Text(
                                 booking.routeName,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     ),
                               ),
                             ],
@@ -144,7 +144,7 @@ class BookingsListPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(booking.status).withOpacity(0.1),
+                      color: _getStatusColor(booking.status).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _getStatusColor(booking.status),
@@ -259,7 +259,7 @@ class BookingsListPage extends StatelessWidget {
         Icon(
           icon,
           size: 18,
-          color: color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          color: color ?? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -269,7 +269,7 @@ class BookingsListPage extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
               ),
@@ -434,7 +434,7 @@ class BookingsListPage extends StatelessWidget {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -446,7 +446,7 @@ class BookingsListPage extends StatelessWidget {
                   title: Text(
                     item.label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                   ),
                   subtitle: Text(

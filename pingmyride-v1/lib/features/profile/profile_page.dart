@@ -6,7 +6,6 @@ import '../../core/services/auth_service.dart';
 import '../../core/services/theme_service.dart';
 import '../../core/services/bus_service.dart';
 import '../../core/models/user_type.dart';
-import '../../core/models/booking.dart';
 import '../auth/login_page.dart';
 import '../bookings/bookings_list_page.dart';
 import '../admin/bus_timing_page.dart';
@@ -71,7 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     end: Alignment.bottomRight,
                     colors: [
                       Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -92,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Text(
                           userType.label,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
+                                color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.9),
                               ),
                         ),
                       ],
@@ -260,6 +259,7 @@ $result
                             if (await canLaunchUrl(uri)) {
                               await launchUrl(uri, mode: LaunchMode.externalApplication);
                             } else {
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Could not open WhatsApp.')),
                               );
@@ -326,7 +326,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -338,7 +338,7 @@ $result
               title: Text(
                 item.label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
               ),
               subtitle: Text(
@@ -351,7 +351,7 @@ $result
                   ? Icon(
                       item.isEditable ? Icons.edit_outlined : Icons.chevron_right,
                       size: item.isEditable ? 18 : 24,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                     )
                   : null,
               onTap: item.onTap,
@@ -563,7 +563,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -588,7 +588,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -613,7 +613,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -638,7 +638,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: Colors.purple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -682,7 +682,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -696,7 +696,7 @@ $result
               title: Text(
                 'Theme Mode',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
               ),
               subtitle: Text(
@@ -716,7 +716,7 @@ $result
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -728,7 +728,7 @@ $result
               title: Text(
                 'Notifications',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
               ),
               subtitle: Text(
@@ -749,44 +749,6 @@ $result
           ],
         ),
       ),
-    );
-  }
-
-  void _showSupportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Help & Support'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Need help? Contact us:'),
-            const SizedBox(height: 16),
-            _buildContactItem(Icons.email, 'support@pingmyride.com'),
-            const SizedBox(height: 8),
-            _buildContactItem(Icons.phone, '+1 (555) 123-4567'),
-            const SizedBox(height: 8),
-            _buildContactItem(Icons.language, 'www.pingmyride.com'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactItem(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text)),
-      ],
     );
   }
 
@@ -870,194 +832,6 @@ $result
         );
       }
     }
-  }
-
-  void _showBookingsDialog(BuildContext context, String title, List<Booking> bookings, BusService busService) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 600),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              if (bookings.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Column(
-                    children: [
-                      Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'No bookings found',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                Flexible(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    shrinkWrap: true,
-                    itemCount: bookings.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final booking = bookings[index];
-                      return _buildBookingCard(context, booking, busService);
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBookingCard(BuildContext context, Booking booking, BusService busService) {
-    final bus = busService.getBusById(booking.busId);
-    final route = bus != null ? busService.getRouteById(bus.routeId) : null;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    booking.busNumber,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(booking.status).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _getStatusColor(booking.status),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    booking.status.label,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: _getStatusColor(booking.status),
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _buildBookingInfoRow(
-              context,
-              Icons.route,
-              booking.routeName,
-            ),
-            const SizedBox(height: 4),
-            _buildBookingInfoRow(
-              context,
-              Icons.location_on,
-              '${booking.pickupLocation} → ${booking.dropLocation}',
-            ),
-            const SizedBox(height: 4),
-            _buildBookingInfoRow(
-              context,
-              Icons.calendar_today,
-              _formatDate(booking.createdAt),
-            ),
-            if (booking.status.name == 'cancelled' && booking.cancelledAt != null) ...[
-              const SizedBox(height: 4),
-              _buildBookingInfoRow(
-                context,
-                Icons.cancel,
-                'Cancelled on ${_formatDate(booking.cancelledAt!)}',
-                color: Colors.red,
-              ),
-            ],
-            if (booking.amount != null) ...[
-              const SizedBox(height: 4),
-              _buildBookingInfoRow(
-                context,
-                Icons.payment,
-                '₹${booking.amount!.toStringAsFixed(2)}',
-                color: Colors.green,
-              ),
-            ],
-            if (route != null) ...[
-              const SizedBox(height: 4),
-              _buildBookingInfoRow(
-                context,
-                Icons.access_time,
-                'Duration: ${route.estimatedDuration}',
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBookingInfoRow(BuildContext context, IconData icon, String text, {Color? color}) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Color _getStatusColor(BookingStatus status) {
-    switch (status) {
-      case BookingStatus.confirmed:
-        return Colors.green;
-      case BookingStatus.cancelled:
-        return Colors.red;
-      case BookingStatus.completed:
-        return Colors.blue;
-    }
-  }
-
-  String _formatDate(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
   Future<void> _handleLogout(BuildContext context, AuthService authService) async {

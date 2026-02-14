@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/services/bus_service.dart';
-import '../../core/models/bus.dart';
-import '../../core/models/bus_route.dart';
 import '../../core/models/bus_timing.dart';
-import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/custom_button.dart';
 import '../../shared/widgets/custom_text_field.dart';
 
@@ -322,7 +319,7 @@ class _AddTimingDialogState extends State<AddTimingDialog> {
                         labelText: 'Select Bus',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedBusId,
+                      initialValue: _selectedBusId,
                       items: busService.buses.map((bus) {
                         return DropdownMenuItem(
                           value: bus.id,

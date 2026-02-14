@@ -78,7 +78,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -229,7 +229,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -375,7 +375,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
               height: 48,
               decoration: BoxDecoration(
                 color: hasScanned
-                    ? Colors.green.withOpacity(0.1)
+                    ? Colors.green.withValues(alpha: 0.1)
                     : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(24),
               ),
@@ -383,7 +383,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
                 hasScanned ? Icons.check_circle : Icons.person,
                 color: hasScanned
                     ? Colors.green
-                    : Theme.of(context).iconTheme.color?.withOpacity(0.6),
+                    : Theme.of(context).iconTheme.color?.withValues(alpha: 0.6),
                 size: 28,
               ),
             ),
@@ -435,8 +435,8 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: hasScanned
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.orange.withOpacity(0.1),
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: hasScanned ? Colors.green : Colors.orange,
@@ -477,7 +477,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
           Icon(
             Icons.people_outline,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -489,7 +489,7 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
             _getEmptyStateMessage(),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -504,7 +504,6 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
       case StudentFilter.notScanned:
         return 'All students have boarded the bus';
       case StudentFilter.all:
-      default:
         return 'No bookings for the selected date and time';
     }
   }
@@ -538,7 +537,6 @@ class _DriverStudentListPageState extends State<DriverStudentListPage> {
         bookings = bookings.where((b) => !_hasStudentScanned(b, tripQRService)).toList();
         break;
       case StudentFilter.all:
-      default:
         break;
     }
 

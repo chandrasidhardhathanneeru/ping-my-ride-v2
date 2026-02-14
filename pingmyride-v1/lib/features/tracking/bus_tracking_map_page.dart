@@ -42,6 +42,7 @@ class _BusTrackingMapPageState extends State<BusTrackingMapPage> {
 
     // Load route polyline if routeId is provided
     if (widget.routeId != null) {
+      if (!context.mounted) return;
       final busService = Provider.of<BusService>(context, listen: false);
       final route = busService.getRouteById(widget.routeId!);
       
@@ -205,8 +206,8 @@ class _BusTrackingMapPageState extends State<BusTrackingMapPage> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

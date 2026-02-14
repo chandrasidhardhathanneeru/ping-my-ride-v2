@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/models/booking.dart';
 import '../../core/models/bus.dart';
 import '../../core/models/bus_route.dart';
 import '../../core/services/bus_service.dart';
-import '../../core/services/trip_qr_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../tracking/location_tracking_page.dart';
 import '../tracking/bus_tracking_map_page.dart';
@@ -205,7 +205,7 @@ class _BookingsPageState extends State<BookingsPage> {
   Widget _buildFilterInfo() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: AppTheme.primaryColor.withOpacity(0.1),
+      color: AppTheme.primaryColor.withValues(alpha: 0.1),
       child: Row(
         children: [
           Icon(Icons.info_outline, size: 16, color: AppTheme.primaryColor),
@@ -236,7 +236,7 @@ class _BookingsPageState extends State<BookingsPage> {
           Icon(
             Icons.event_busy,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -252,7 +252,7 @@ class _BookingsPageState extends State<BookingsPage> {
                 : 'Try changing the filter',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
           ),
         ],
@@ -604,7 +604,7 @@ class _BookingCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: _getStatusColor(status).withOpacity(0.1),
+        color: _getStatusColor(status).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _getStatusColor(status),
@@ -690,6 +690,24 @@ class _BookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
         ],
+        if (booking.seatNumber != null) ...[
+          _InfoRow(
+            icon: Icons.event_seat,
+            label: 'Seat Number',
+            value: booking.seatNumber!,
+          ),
+          const SizedBox(height: 8),
+        ],
+        if (booking.gender != null) ...[
+          _InfoRow(
+            icon: booking.gender?.toLowerCase() == 'male' 
+                ? Icons.male 
+                : Icons.female,
+            label: 'Gender',
+            value: booking.gender!,
+          ),
+          const SizedBox(height: 8),
+        ],
         _InfoRow(
           icon: Icons.person,
           label: 'Driver',
@@ -701,7 +719,72 @@ class _BookingCard extends StatelessWidget {
           label: 'Contact',
           value: booking.driverPhone,
         ),
+        if (booking.qrCode != null && booking.qrCode!.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildQRCode(context),
+        ],
       ],
+    );
+  }
+
+  Widget _buildQRCode(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: 0.3),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.qr_code_2,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Your Booking QR Code',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: QrImageView(
+              data: booking.qrCode!,
+              version: QrVersions.auto,
+              size: 160.0,
+              backgroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Show this to the driver',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -780,10 +863,10 @@ class _BookingCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.amber.withOpacity(0.3),
+          color: Colors.amber.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

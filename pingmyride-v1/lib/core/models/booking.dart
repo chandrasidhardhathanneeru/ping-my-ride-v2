@@ -26,6 +26,11 @@ class Booking {
   final String? orderId;
   final String? signature;
   final double? amount;
+  
+  // Seat details
+  final String? seatNumber;
+  final String? gender; // 'male' or 'female'
+  final String? qrCode; // Generated QR code for the booking
 
   Booking({
     required this.id,
@@ -51,6 +56,9 @@ class Booking {
     this.orderId,
     this.signature,
     this.amount,
+    this.seatNumber,
+    this.gender,
+    this.qrCode,
   });
 
   factory Booking.fromMap(Map<String, dynamic> map, String id) {
@@ -81,6 +89,9 @@ class Booking {
       orderId: map['orderId'],
       signature: map['signature'],
       amount: map['amount']?.toDouble(),
+      seatNumber: map['seatNumber'],
+      gender: map['gender'],
+      qrCode: map['qrCode'],
     );
   }
 
@@ -108,6 +119,9 @@ class Booking {
       'orderId': orderId,
       'signature': signature,
       'amount': amount,
+      'seatNumber': seatNumber,
+      'gender': gender,
+      'qrCode': qrCode,
     };
   }
 
@@ -135,6 +149,9 @@ class Booking {
     String? orderId,
     String? signature,
     double? amount,
+    String? seatNumber,
+    String? gender,
+    String? qrCode,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -160,6 +177,9 @@ class Booking {
       orderId: orderId ?? this.orderId,
       signature: signature ?? this.signature,
       amount: amount ?? this.amount,
+      seatNumber: seatNumber ?? this.seatNumber,
+      gender: gender ?? this.gender,
+      qrCode: qrCode ?? this.qrCode,
     );
   }
 }

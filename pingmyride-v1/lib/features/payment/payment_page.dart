@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/razorpay_config.dart';
 import '../../core/models/bus.dart';
 import '../../core/models/bus_route.dart';
 import '../../core/services/bus_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -12,6 +14,8 @@ class PaymentPage extends StatefulWidget {
   final BusRoute route;
   final String selectedTimeSlot;
   final DateTime selectedDate;
+  final String? seatNumber;
+  final String? gender;
 
   const PaymentPage({
     super.key,
@@ -19,6 +23,8 @@ class PaymentPage extends StatefulWidget {
     required this.route,
     required this.selectedTimeSlot,
     required this.selectedDate,
+    this.seatNumber,
+    this.gender,
   });
 
   @override
@@ -61,6 +67,8 @@ class _PaymentPageState extends State<PaymentPage> {
         signature: response.signature ?? '',
         selectedTimeSlot: widget.selectedTimeSlot,
         selectedBookingDate: widget.selectedDate,
+        seatNumber: widget.seatNumber,
+        gender: widget.gender,
       );
 
       if (mounted) {
@@ -127,8 +135,27 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _openCheckout() async {
+    // Platform check for Razorpay: supported only on Android/iOS native
+    if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.linux || defaultTargetPlatform == TargetPlatform.macOS)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Razorpay payment is only supported on Android and iOS devices. Please use a physical device or emulator.'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+      return;
+    }
+
     // Calculate amount in paise (smallest currency unit)
     final amountInPaise = (RazorpayConfig.defaultBookingFee * 100).toInt();
+    
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    final userEmail = user?.email ?? '';
+    final userPhone = ''; // Phone might not be in Firebase Auth, but can be empty
 
     var options = {
       'key': RazorpayConfig.keyId,
@@ -137,8 +164,8 @@ class _PaymentPageState extends State<PaymentPage> {
       'name': RazorpayConfig.companyName,
       'description': 'Bus Booking - ${widget.bus.busNumber}',
       'prefill': {
-        'email': '',
-        'contact': '',
+        'email': userEmail,
+        'contact': userPhone,
       },
       'theme': {
         'color': RazorpayConfig.themeColor,
@@ -152,6 +179,7 @@ class _PaymentPageState extends State<PaymentPage> {
     };
 
     try {
+      debugPrint('Opening Razorpay with options: $options');
       _razorpay.open(options);
     } catch (e) {
       debugPrint('Error opening Razorpay: $e');

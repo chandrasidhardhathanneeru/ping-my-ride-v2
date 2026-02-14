@@ -177,10 +177,10 @@ class AppTheme {
           overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.pressed)) {
-                return _lightPrimaryForeground.withOpacity(0.12);
+                return _lightPrimaryForeground.withValues(alpha: 0.12);
               }
               if (states.contains(WidgetState.hovered)) {
-                return _lightPrimaryForeground.withOpacity(0.08);
+                return _lightPrimaryForeground.withValues(alpha: 0.08);
               }
               return null;
             },
@@ -207,10 +207,10 @@ class AppTheme {
           overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.pressed)) {
-                return _lightForeground.withOpacity(0.12);
+                return _lightForeground.withValues(alpha: 0.12);
               }
               if (states.contains(WidgetState.hovered)) {
-                return _lightForeground.withOpacity(0.08);
+                return _lightForeground.withValues(alpha: 0.08);
               }
               return null;
             },
@@ -645,10 +645,10 @@ class AppTheme {
           overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.pressed)) {
-                return _darkPrimaryForeground.withOpacity(0.12);
+                return _darkPrimaryForeground.withValues(alpha: 0.12);
               }
               if (states.contains(WidgetState.hovered)) {
-                return _darkPrimaryForeground.withOpacity(0.08);
+                return _darkPrimaryForeground.withValues(alpha: 0.08);
               }
               return null;
             },
@@ -675,10 +675,10 @@ class AppTheme {
           overlayColor: WidgetStateProperty.resolveWith<Color?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.pressed)) {
-                return _darkForeground.withOpacity(0.12);
+                return _darkForeground.withValues(alpha: 0.12);
               }
               if (states.contains(WidgetState.hovered)) {
-                return _darkForeground.withOpacity(0.08);
+                return _darkForeground.withValues(alpha: 0.08);
               }
               return null;
             },
