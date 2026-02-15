@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:crypto/crypto.dart';
 import '../models/trip_qr.dart';
 import '../models/booking.dart';
+import 'fcm_service.dart';
 
 class TripQRService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -100,6 +101,17 @@ class TripQRService extends ChangeNotifier {
       final docRef = await _firestore.collection('trip_qrs').add(tripQR.toMap());
 
       debugPrint('TripQRService: Trip QR created with ID ${docRef.id}');
+
+      // Notify students that the trip has started
+      await FCMService().notifyStudentsOfTripStart(
+        busId: busId,
+        routeId: routeId,
+        timeSlot: timeSlot,
+        busNumber: busNumber,
+        routeName: routeName,
+        driverName: driverName,
+        travelDate: travelDate,
+      );
 
       await fetchDriverTripQRs();
       return tripQR.copyWith(id: docRef.id);

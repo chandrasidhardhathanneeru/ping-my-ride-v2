@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
@@ -9,14 +10,63 @@ import 'core/services/theme_service.dart';
 import 'core/services/location_manager.dart';
 import 'core/services/tracking_service.dart';
 import 'core/services/trip_qr_service.dart';
+import 'core/services/fcm_service.dart';
+import 'core/services/notification_service.dart';
 import 'features/auth/auth_wrapper.dart';
+
+// Top-level function to handle background messages
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FCMService.handleBackgroundMessage(message);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize local notifications
+  await NotificationService().initialize();
+  
+  // Set up background message handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  
+  // Setup foreground message handler
+  FCMService().setupForegroundMessageHandler();
+  
+  // Setup notification tap handlers for FCM
+  _setupFCMNotificationTapHandlers();
+  
   runApp(const MyApp());
+}
+
+/// Setup FCM notification tap handlers - safely logs without forced navigation
+void _setupFCMNotificationTapHandlers() {
+  // Handle notification tap when app is in background
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    try {
+      debugPrint('FCM: Notification opened app from background');
+      debugPrint('FCM: Message data: ${message.data}');
+      // App opens normally - no forced navigation
+    } catch (e) {
+      debugPrint('FCM: Error handling notification tap: $e');
+    }
+  });
+
+  // Handle notification tap when app was terminated
+  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    try {
+      if (message != null) {
+        debugPrint('FCM: Notification opened app from terminated state');
+        debugPrint('FCM: Message data: ${message.data}');
+        // App opens normally - no forced navigation
+      }
+    } catch (e) {
+      debugPrint('FCM: Error handling initial message: $e');
+    }
+  });
 }
 
 class MyApp extends StatelessWidget {

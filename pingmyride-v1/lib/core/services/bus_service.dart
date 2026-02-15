@@ -6,11 +6,11 @@ import 'package:crypto/crypto.dart';
 import '../models/bus.dart';
 import '../models/bus_route.dart';
 import '../models/booking.dart';
-import '../models/bus_timing.dart';
-
+import '../models/bus_timing.dart';import 'notification_service.dart';
 class BusService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificationService _notificationService = NotificationService();
   
   List<Bus> _buses = [];
   List<BusRoute> _routes = [];
@@ -367,6 +367,13 @@ class BusService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       
+      // Send booking confirmation notification
+      await _notificationService.showBookingConfirmation(
+        routeName: route.routeName,
+        time: selectedTimeSlot ?? 'scheduled time',
+        busNumber: bus.busNumber,
+      );
+      
       debugPrint('Booking process completed');
       return true;
     } catch (e) {
@@ -516,6 +523,13 @@ class BusService extends ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
+      
+      // Send booking confirmation notification
+      await _notificationService.showBookingConfirmation(
+        routeName: route.routeName,
+        time: selectedTimeSlot ?? 'scheduled time',
+        busNumber: bus.busNumber,
+      );
       
       debugPrint('Booking with payment process completed');
       return true;

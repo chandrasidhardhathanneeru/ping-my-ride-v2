@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../../core/models/user_type.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/fcm_service.dart';
+import '../../core/services/notification_listener_service.dart';
 import '../navigation/main_navigation.dart';
 import 'login_page.dart';
 
@@ -83,6 +85,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
         // The AuthService will automatically update via its auth state listener
         // Wait briefly to ensure state is synced
         await Future.delayed(const Duration(milliseconds: 100));
+        
+        // Initialize FCM for auto-logged in users
+        _initializeFCMForAutoLogin(user.uid, userType);
       }
 
       // Navigate to appropriate dashboard
@@ -97,6 +102,28 @@ class _AuthWrapperState extends State<AuthWrapper> {
         _destinationWidget = const LoginPage();
         _isChecking = false;
       });
+    }
+  }
+
+  // Initialize FCM for users who are auto-logged in
+  Future<void> _initializeFCMForAutoLogin(String userId, UserType userType) async {
+    try {
+      final fcmService = FCMService();
+      final permissionGranted = await fcmService.requestPermissionAfterLogin();
+      
+      if (permissionGranted) {
+        await fcmService.storeFCMToken(userId, userType.name);
+        debugPrint('FCM: Token stored for auto-logged in user $userId');
+      }
+      
+      // Start notification listener for students
+      if (userType == UserType.student) {
+        final notificationListener = NotificationListenerService();
+        await notificationListener.startListening(userId);
+        debugPrint('NotificationListener: Started for student $userId');
+      }
+    } catch (e) {
+      debugPrint('FCM: Error initializing for auto-login: $e');
     }
   }
 

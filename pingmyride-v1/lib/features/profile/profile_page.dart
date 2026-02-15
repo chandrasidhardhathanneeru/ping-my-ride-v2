@@ -764,40 +764,6 @@ $result
                 },
               ),
             ),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.notifications_outlined,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              title: Text(
-                'Notifications',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-              ),
-              subtitle: Text(
-                'Push notifications enabled',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              trailing: Switch(
-                value: true,
-                onChanged: (value) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notification settings - Coming soon')),
-                  );
-                },
-              ),
-            ),
           ],
         ),
       ),

@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_type.dart';
+import 'fcm_service.dart';
+import 'notification_listener_service.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FCMService _fcmService = FCMService();
   
   UserType? _currentUserType;
   String? _currentUserEmail;
@@ -85,6 +88,10 @@ class AuthService extends ChangeNotifier {
             _currentUserEmail = email;
             _isAuthenticated = true;
             notifyListeners();
+            
+            // Initialize FCM and store token after successful login
+            _initializeFCMForUser(credential.user!.uid, userType);
+            
             return {'success': true};
           } else {
             // Wrong user type, sign out
@@ -193,6 +200,14 @@ class AuthService extends ChangeNotifier {
 
   Future<void> logout() async {
     try {
+      // Remove FCM token before logging out
+      if (_auth.currentUser != null && _currentUserType != null) {
+        await _fcmService.removeFCMToken(
+          _auth.currentUser!.uid,
+          _currentUserType!.name,
+        );
+      }
+      
       await _auth.signOut();
       _currentUserType = null;
       _currentUserEmail = null;
@@ -241,5 +256,30 @@ class AuthService extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  // Initialize FCM for logged-in user
+  Future<void> _initializeFCMForUser(String userId, UserType userType) async {
+    try {
+      // Request notification permission
+      final permissionGranted = await _fcmService.requestPermissionAfterLogin();
+      
+      if (permissionGranted) {
+        // Store FCM token in Firestore
+        await _fcmService.storeFCMToken(userId, userType.name);
+        debugPrint('FCM: Token stored for user $userId');
+      } else {
+        debugPrint('FCM: Permission not granted by user');
+      }
+      
+      // Start notification listener for students
+      if (userType == UserType.student) {
+        final notificationListener = NotificationListenerService();
+        await notificationListener.startListening(userId);
+        debugPrint('NotificationListener: Started for student $userId');
+      }
+    } catch (e) {
+      debugPrint('FCM: Error initializing for user: $e');
+    }
   }
 }

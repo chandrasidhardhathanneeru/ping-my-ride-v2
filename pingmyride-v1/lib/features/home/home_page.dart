@@ -53,10 +53,6 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('${widget.userType.label} Dashboard'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
           Consumer<ThemeService>(
             builder: (context, themeService, child) {
               return PopupMenuButton<String>(
@@ -1258,7 +1254,6 @@ class _HomePageState extends State<HomePage> {
         return [
           _buildActionCard('Track Bus', Icons.location_on, Colors.blue, () {}),
           _buildActionCard('Bus Schedule', Icons.schedule, Colors.green, () {}),
-          _buildActionCard('Notifications', Icons.notifications, Colors.orange, () {}),
           _buildActionCard('Profile', Icons.person, Colors.purple, () {}),
         ];
       case UserType.driver:
