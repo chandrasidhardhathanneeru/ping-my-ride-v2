@@ -6,6 +6,7 @@ class BusRoute {
   final List<BusStop> intermediateStops;
   final String estimatedDuration; // e.g., "45 minutes"
   final double distance; // in kilometers
+  final double baseFare; // Full route fare (₹) from start to end
   final bool isActive;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -18,6 +19,7 @@ class BusRoute {
     this.intermediateStops = const [],
     required this.estimatedDuration,
     required this.distance,
+    this.baseFare = 50.0,
     this.isActive = true,
     required this.createdAt,
     this.updatedAt,
@@ -35,6 +37,7 @@ class BusRoute {
           [],
       estimatedDuration: map['estimatedDuration'] ?? '',
       distance: (map['distance'] ?? 0).toDouble(),
+      baseFare: (map['baseFare'] ?? 50.0).toDouble(),
       isActive: map['isActive'] ?? true,
       createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
       updatedAt: map['updatedAt']?.toDate(),
@@ -49,6 +52,7 @@ class BusRoute {
       'intermediateStops': intermediateStops.map((stop) => stop.toMap()).toList(),
       'estimatedDuration': estimatedDuration,
       'distance': distance,
+      'baseFare': baseFare,
       'isActive': isActive,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
@@ -63,6 +67,7 @@ class BusRoute {
     List<BusStop>? intermediateStops,
     String? estimatedDuration,
     double? distance,
+    double? baseFare,
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -75,6 +80,7 @@ class BusRoute {
       intermediateStops: intermediateStops ?? this.intermediateStops,
       estimatedDuration: estimatedDuration ?? this.estimatedDuration,
       distance: distance ?? this.distance,
+      baseFare: baseFare ?? this.baseFare,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -89,6 +95,7 @@ class BusStop {
   final double longitude;
   final String estimatedTime; // e.g., "10:30 AM"
   final int order; // Stop order in the route
+  final double fare; // Fare from THIS stop to the destination (₹)
 
   BusStop({
     required this.name,
@@ -97,6 +104,7 @@ class BusStop {
     required this.longitude,
     required this.estimatedTime,
     required this.order,
+    this.fare = 0.0,
   });
 
   factory BusStop.fromMap(Map<String, dynamic> map) {
@@ -107,6 +115,7 @@ class BusStop {
       longitude: (map['longitude'] ?? 0).toDouble(),
       estimatedTime: map['estimatedTime'] ?? '',
       order: map['order'] ?? 0,
+      fare: (map['fare'] ?? 0).toDouble(),
     );
   }
 
@@ -118,6 +127,7 @@ class BusStop {
       'longitude': longitude,
       'estimatedTime': estimatedTime,
       'order': order,
+      'fare': fare,
     };
   }
 
@@ -128,6 +138,7 @@ class BusStop {
     double? longitude,
     String? estimatedTime,
     int? order,
+    double? fare,
   }) {
     return BusStop(
       name: name ?? this.name,
@@ -136,6 +147,7 @@ class BusStop {
       longitude: longitude ?? this.longitude,
       estimatedTime: estimatedTime ?? this.estimatedTime,
       order: order ?? this.order,
+      fare: fare ?? this.fare,
     );
   }
 }

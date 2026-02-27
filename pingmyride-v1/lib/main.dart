@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/bus_service.dart';
+import 'core/services/trip_service.dart';
 import 'core/services/theme_service.dart';
 import 'core/services/location_manager.dart';
 import 'core/services/tracking_service.dart';
@@ -78,6 +79,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => BusService()),
+        ChangeNotifierProvider(create: (_) => TripService()),
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => LocationManager()),
         ChangeNotifierProvider(create: (_) => TrackingService()),

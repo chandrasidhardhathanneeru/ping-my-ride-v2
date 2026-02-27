@@ -16,6 +16,8 @@ class PaymentPage extends StatefulWidget {
   final DateTime selectedDate;
   final String? seatNumber;
   final String? gender;
+  final String? boardingStop; // which stop the student boards from
+  final double? fare;         // fare based on boarding stop
 
   const PaymentPage({
     super.key,
@@ -25,6 +27,8 @@ class PaymentPage extends StatefulWidget {
     required this.selectedDate,
     this.seatNumber,
     this.gender,
+    this.boardingStop,
+    this.fare,
   });
 
   @override
@@ -150,7 +154,8 @@ class _PaymentPageState extends State<PaymentPage> {
     }
 
     // Calculate amount in paise (smallest currency unit)
-    final amountInPaise = (RazorpayConfig.defaultBookingFee * 100).toInt();
+    final effectiveFare = widget.fare ?? RazorpayConfig.defaultBookingFee;
+    final amountInPaise = (effectiveFare * 100).toInt();
     
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
@@ -262,8 +267,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           const Divider(height: 24),
                           _buildInfoRow(
                             Icons.location_on,
-                            'From',
-                            widget.route.pickupLocation,
+                            'Boarding From',
+                            widget.boardingStop ?? widget.route.pickupLocation,
                           ),
                           const SizedBox(height: 8),
                           _buildInfoRow(
@@ -391,7 +396,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                 style: TextStyle(fontSize: 16),
                               ),
                               Text(
-                                '₹${RazorpayConfig.defaultBookingFee.toStringAsFixed(2)}',
+                                '\u20b9${(widget.fare ?? RazorpayConfig.defaultBookingFee).toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -411,7 +416,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                 ),
                               ),
                               Text(
-                                '₹${RazorpayConfig.defaultBookingFee.toStringAsFixed(2)}',
+                                '\u20b9${(widget.fare ?? RazorpayConfig.defaultBookingFee).toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

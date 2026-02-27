@@ -404,7 +404,7 @@ class _LoginPageState extends State<LoginPage> {
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           onPressed: () {
-                            Navigator.of(context).pushReplacement(
+                            Navigator.of(context).push(
                               MaterialPageRoute(builder: (context) => const SignUpPage()),
                             );
                           },

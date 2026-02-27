@@ -32,6 +32,13 @@ class Booking {
   final String? gender; // 'male' or 'female'
   final String? qrCode; // Generated QR code for the booking
 
+  // New fields for trip-based booking with stops
+  final String? tripId; // Reference to trip (if using new system)
+  final String? boardingStop; // Boarding point name
+  final String? dropStop; // Dropping point name
+  final String? boardingTime; // Boarding time
+  final String? dropTime; // Drop time
+
   Booking({
     required this.id,
     required this.userId,
@@ -59,6 +66,11 @@ class Booking {
     this.seatNumber,
     this.gender,
     this.qrCode,
+    this.tripId,
+    this.boardingStop,
+    this.dropStop,
+    this.boardingTime,
+    this.dropTime,
   });
 
   factory Booking.fromMap(Map<String, dynamic> map, String id) {
@@ -87,6 +99,11 @@ class Booking {
       selectedBookingDate: map['selectedBookingDate']?.toDate(),
       paymentId: map['paymentId'],
       orderId: map['orderId'],
+      tripId: map['tripId'],
+      boardingStop: map['boardingStop'],
+      dropStop: map['dropStop'],
+      boardingTime: map['boardingTime'],
+      dropTime: map['dropTime'],
       signature: map['signature'],
       amount: map['amount']?.toDouble(),
       seatNumber: map['seatNumber'],
@@ -117,6 +134,11 @@ class Booking {
       'selectedBookingDate': selectedBookingDate,
       'paymentId': paymentId,
       'orderId': orderId,
+      'tripId': tripId,
+      'boardingStop': boardingStop,
+      'dropStop': dropStop,
+      'boardingTime': boardingTime,
+      'dropTime': dropTime,
       'signature': signature,
       'amount': amount,
       'seatNumber': seatNumber,
@@ -152,6 +174,11 @@ class Booking {
     String? seatNumber,
     String? gender,
     String? qrCode,
+    String? tripId,
+    String? boardingStop,
+    String? dropStop,
+    String? boardingTime,
+    String? dropTime,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -180,6 +207,11 @@ class Booking {
       seatNumber: seatNumber ?? this.seatNumber,
       gender: gender ?? this.gender,
       qrCode: qrCode ?? this.qrCode,
+      tripId: tripId ?? this.tripId,
+      boardingStop: boardingStop ?? this.boardingStop,
+      dropStop: dropStop ?? this.dropStop,
+      boardingTime: boardingTime ?? this.boardingTime,
+      dropTime: dropTime ?? this.dropTime,
     );
   }
 }

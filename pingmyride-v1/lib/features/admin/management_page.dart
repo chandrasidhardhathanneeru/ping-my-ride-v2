@@ -880,7 +880,9 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
   final _dropLocationController = TextEditingController();
   final _estimatedDurationController = TextEditingController();
   final _distanceController = TextEditingController();
+  final _baseFareController = TextEditingController();
   bool _isLoading = false;
+  List<BusStop> _intermediateStops = [];
 
   @override
   void initState() {
@@ -891,6 +893,8 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
       _dropLocationController.text = widget.route!.dropLocation;
       _estimatedDurationController.text = widget.route!.estimatedDuration;
       _distanceController.text = widget.route!.distance.toString();
+      _baseFareController.text = widget.route!.baseFare.toString();
+      _intermediateStops = List.from(widget.route!.intermediateStops);
     }
   }
 
@@ -901,6 +905,7 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
     _dropLocationController.dispose();
     _estimatedDurationController.dispose();
     _distanceController.dispose();
+    _baseFareController.dispose();
     super.dispose();
   }
 
@@ -979,6 +984,69 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _baseFareController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Base Fare (₹)',
+                    hintText: 'Full route fare from start to end',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.currency_rupee),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter base fare';
+                    }
+                    if (double.tryParse(value) == null || double.parse(value) < 0) {
+                      return 'Please enter a valid fare';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Stops (${_intermediateStops.length})',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    TextButton.icon(
+                      onPressed: _addIntermediateStop,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Stop'),
+                    ),
+                  ],
+                ),
+                if (_intermediateStops.isNotEmpty)
+                  ...List.generate(_intermediateStops.length, (index) {
+                    final stop = _intermediateStops[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          radius: 14,
+                          child: Text('${index + 1}', style: const TextStyle(fontSize: 12)),
+                        ),
+                        title: Text(stop.name),
+                        subtitle: Text(
+                          '${stop.estimatedTime}  •  ₹${stop.fare.toStringAsFixed(0)}',
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                          onPressed: () {
+                            setState(() {
+                              _intermediateStops.removeAt(index);
+                              for (int i = 0; i < _intermediateStops.length; i++) {
+                                _intermediateStops[i] = _intermediateStops[i].copyWith(order: i + 1);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  }),
               ],
             ),
           ),
@@ -1014,18 +1082,20 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
         routeName: _routeNameController.text.trim(),
         pickupLocation: _pickupLocationController.text.trim(),
         dropLocation: _dropLocationController.text.trim(),
-        intermediateStops: [], // For now, we'll add stops later
+        intermediateStops: _intermediateStops,
         estimatedDuration: _estimatedDurationController.text.trim(),
         distance: double.parse(_distanceController.text),
+        baseFare: double.tryParse(_baseFareController.text) ?? 50.0,
       );
     } else {
-      // Update existing route
       final updatedRoute = widget.route!.copyWith(
         routeName: _routeNameController.text.trim(),
         pickupLocation: _pickupLocationController.text.trim(),
         dropLocation: _dropLocationController.text.trim(),
+        intermediateStops: _intermediateStops,
         estimatedDuration: _estimatedDurationController.text.trim(),
         distance: double.parse(_distanceController.text),
+        baseFare: double.tryParse(_baseFareController.text) ?? widget.route!.baseFare,
         updatedAt: DateTime.now(),
       );
       success = await busService.updateRoute(updatedRoute);
@@ -1045,6 +1115,121 @@ class _AddRouteDialogState extends State<AddRouteDialog> {
           backgroundColor: success ? Colors.green : Colors.red,
         ),
       );
+    }
+  }
+
+  Future<void> _addIntermediateStop() async {
+    final nameController = TextEditingController();
+    final timeController = TextEditingController();
+    final addressController = TextEditingController();
+    final fareController = TextEditingController();
+    String? nameError;
+    String? timeError;
+
+    final result = await showDialog<BusStop>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (sbContext, setDialogState) => AlertDialog(
+          title: const Text('Add Stop'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                autofocus: true,
+                onChanged: (_) {
+                  if (nameError != null) setDialogState(() => nameError = null);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Stop Name',
+                  hintText: 'e.g., Market Square',
+                  border: const OutlineInputBorder(),
+                  errorText: nameError,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: addressController,
+                decoration: const InputDecoration(
+                  labelText: 'Address (optional)',
+                  hintText: 'Full address',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: timeController,
+                onChanged: (_) {
+                  if (timeError != null) setDialogState(() => timeError = null);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Estimated Time',
+                  hintText: 'e.g., 09:00 AM',
+                  border: const OutlineInputBorder(),
+                  errorText: timeError,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: fareController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Fare from this stop (₹)',
+                  hintText: 'e.g., 30',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.currency_rupee, size: 18),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                final time = timeController.text.trim();
+                bool valid = true;
+                if (name.isEmpty) {
+                  setDialogState(() => nameError = 'Enter stop name');
+                  valid = false;
+                }
+                if (time.isEmpty) {
+                  setDialogState(() => timeError = 'Enter estimated time');
+                  valid = false;
+                }
+                if (valid) {
+                  Navigator.pop(
+                    dialogContext,
+                    BusStop(
+                      name: name,
+                      address: addressController.text.trim(),
+                      latitude: 0.0,
+                      longitude: 0.0,
+                      estimatedTime: time,
+                      order: _intermediateStops.length + 1,
+                      fare: double.tryParse(fareController.text.trim()) ?? 0.0,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    nameController.dispose();
+    timeController.dispose();
+    addressController.dispose();
+
+    if (result != null && mounted) {
+      setState(() {
+        _intermediateStops.add(result);
+      });
     }
   }
 }

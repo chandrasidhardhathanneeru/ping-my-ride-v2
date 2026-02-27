@@ -129,6 +129,7 @@ class BusService extends ChangeNotifier {
     required List<BusStop> intermediateStops,
     required String estimatedDuration,
     required double distance,
+    double baseFare = 50.0,
   }) async {
     try {
       _isLoading = true;
@@ -141,6 +142,7 @@ class BusService extends ChangeNotifier {
         'intermediateStops': intermediateStops.map((stop) => stop.toMap()).toList(),
         'estimatedDuration': estimatedDuration,
         'distance': distance,
+        'baseFare': baseFare,
         'isActive': true,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),

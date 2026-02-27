@@ -1,4 +1,4 @@
-
+﻿
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +16,11 @@ import '../bookings/seat_selection_page.dart';
 import '../admin/management_page.dart';
 import '../admin/bus_timing_page.dart';
 import '../admin/analytics_page.dart';
+import '../student/student_search_page.dart';
+import '../student/all_buses_page.dart';
+import '../bookings/bookings_page.dart';
+import '../../core/helpers/booking_flow_helper.dart';
+import '../tracking/track_my_bus_page.dart';
 
 class HomePage extends StatefulWidget {
   final UserType userType;
@@ -104,110 +109,311 @@ class _HomePageState extends State<HomePage> {
   Widget _buildStudentDashboard() {
     final authService = Provider.of<AuthService>(context, listen: false);
     final userName = authService.currentUser?.displayName ?? 'Student';
-    
+
     return Consumer<BusService>(
       builder: (context, busService, child) {
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Header
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome back,',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userName,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+        return RefreshIndicator(
+          onRefresh: () => busService.initialize(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // â”€â”€ Gradient Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.80),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                      child: Text(
-                        userName.isNotEmpty ? userName[0].toUpperCase() : 'S',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(28),
+                      bottomRight: Radius.circular(28),
+                    ),
+                  ),
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Greeting row
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Good ${_greeting()},',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      userName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundColor: Colors.white.withValues(alpha: 0.25),
+                                child: Text(
+                                  userName.isNotEmpty ? userName[0].toUpperCase() : 'S',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          // Search / Book banner
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const StudentSearchPage(),
+                              ),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.12),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.search,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 22,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Search buses â€” from, to, dateâ€¦',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      'Search',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              
-              // Book a Ride Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'Book a Ride',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildBusRoutesSection(busService),
-              
-              const SizedBox(height: 24),
-              
-              // Upcoming Trips Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'Upcoming Trips',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+
+                const SizedBox(height: 24),
+
+                // â”€â”€ Quick Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      _buildQuickAction(
+                        icon: Icons.search_rounded,
+                        label: 'Search\nBuses',
+                        color: Colors.blue,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const StudentSearchPage()),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildQuickAction(
+                        icon: Icons.confirmation_number_rounded,
+                        label: 'My\nBookings',
+                        color: Colors.green,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BookingsPage()),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildQuickAction(
+                        icon: Icons.schedule_rounded,
+                        label: 'Bus\nSchedule',
+                        color: Colors.orange,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BusTimingPage()),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildQuickAction(
+                        icon: Icons.directions_bus_rounded,
+                        label: 'Track\nBus',
+                        color: Colors.purple,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const TrackMyBusPage()),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildUpcomingTripsSection(busService),
-              const SizedBox(height: 20),
-            ],
+
+                const SizedBox(height: 28),
+
+                // â”€â”€ Available Buses â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'All Buses',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AllBusesPage()),
+                        ),
+                        child: const Text('See All'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildAvailableBusesSection(busService),
+
+                const SizedBox(height: 28),
+
+                // â”€â”€ Upcoming Trips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'Upcoming Trips',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildUpcomingTripsSection(busService),
+                const SizedBox(height: 28),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildBusRoutesSection(BusService busService) {
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Morning';
+    if (h < 17) return 'Afternoon';
+    return 'Evening';
+  }
+
+  Widget _buildQuickAction({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvailableBusesSection(BusService busService) {
+    final activeBuses = busService.buses.toList();
+
     if (busService.isLoading) {
-      return const SizedBox(
-        height: 200,
+      return const Padding(
+        padding: EdgeInsets.all(40),
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (busService.buses.isEmpty) {
+    if (activeBuses.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
               Icon(
                 Icons.directions_bus_outlined,
-                size: 48,
+                size: 52,
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
               ),
               const SizedBox(height: 12),
@@ -217,12 +423,22 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
-                'Please check back later',
+                'Check back later or search for specific routes',
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StudentSearchPage()),
+                ),
+                icon: const Icon(Icons.search, size: 18),
+                label: const Text('Search Buses'),
               ),
             ],
           ),
@@ -231,129 +447,151 @@ class _HomePageState extends State<HomePage> {
     }
 
     return SizedBox(
-      height: 200,
+      height: 245,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: busService.buses.length,
+        itemCount: activeBuses.length,
         itemBuilder: (context, index) {
-          final bus = busService.buses[index];
+          final bus = activeBuses[index];
           final route = busService.getRouteById(bus.routeId);
-          return _buildBusRouteCard(bus, route, busService);
+          return _buildBusCard(context, bus, route, busService);
         },
       ),
     );
   }
 
-  Widget _buildBusRouteCard(Bus bus, BusRoute? route, BusService busService) {
+  Widget _buildBusCard(BuildContext ctx, Bus bus, BusRoute? route, BusService busService) {
+    final primary = Theme.of(ctx).colorScheme.primary;
     return Container(
-      width: 280,
+      width: 220,
       margin: const EdgeInsets.only(right: 16),
       child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: bus.hasAvailableSeats
-              ? () => _showBookingConfirmationDialog(bus, route, busService)
-              : null,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Bus Image
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: Stack(
-                  children: [
-                    // Bus image
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                      child: Image.asset(
-                        'assets/icons/campus_express.png.png',
-                        width: double.infinity,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                            child: Center(
-                              child: Icon(
-                                Icons.directions_bus,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+              // Bus number badge + status
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: primary,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    // Capacity badge
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: bus.hasAvailableSeats 
-                              ? Colors.green 
-                              : Colors.red,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          bus.hasAvailableSeats 
-                              ? '${bus.capacity - bus.bookedSeats} seats' 
-                              : 'Full',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Bus details
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        const Icon(Icons.directions_bus, color: Colors.white, size: 14),
+                        const SizedBox(width: 4),
                         Text(
                           bus.busNumber,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
-                        ),
-                        Icon(
-                          bus.hasAvailableSeats ? Icons.arrow_forward : Icons.block,
-                          size: 18,
-                          color: bus.hasAvailableSeats 
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                       ],
                     ),
-                    if (route != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        route.routeName,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        maxLines: 1,
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Active',
+                    style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Route name
+              Text(
+                route?.routeName ?? 'Route not assigned',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
+              // From â†’ To
+              if (route != null) ...[
+                Row(
+                  children: [
+                    const Icon(Icons.circle, size: 8, color: Colors.green),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        route.pickupLocation,
+                        style: const TextStyle(fontSize: 11, color: Colors.grey),
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
+                    ),
                   ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: SizedBox(height: 4),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 8, color: Colors.red),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        route.dropLocation,
+                        style: const TextStyle(fontSize: 11, color: Colors.grey),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
+                    const SizedBox(width: 4),
+                    Text(
+                      route.estimatedDuration,
+                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.people, size: 12, color: Colors.grey[500]),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${bus.capacity} seats',
+                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ],
+              const Spacer(),
+              // Book Now button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _showBookingConfirmationDialog(bus, route, busService),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Book Now',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
                 ),
               ),
             ],
@@ -586,590 +824,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showBookingConfirmationDialog(Bus bus, BusRoute? route, BusService busService) {
-    // First show time slot selection
-    _showTimeSlotSelectionDialog(bus, route, busService);
-  }
-
-  void _showTimeSlotSelectionDialog(Bus bus, BusRoute? route, BusService busService) {
-    final busTiming = busService.getTimingByBusId(bus.id);
-    
-    if (busTiming == null || busTiming.timings.isEmpty) {
-      // No timings available, show error
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('No Timings Available'),
-            content: const Text('This bus does not have any scheduled timings. Please contact the administrator or try a different bus.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String? selectedTimeSlot;
-        
-        // Normalize date to remove time component
-        DateTime normalizeDate(DateTime date) {
-          return DateTime(date.year, date.month, date.day);
-        }
-        
-        // Get available dates (next 14 days that match the bus schedule)
-        List<DateTime> getAvailableDates() {
-          List<DateTime> dates = [];
-          DateTime current = normalizeDate(DateTime.now());
-          for (int i = 0; i < 14; i++) {
-            DateTime date = current.add(Duration(days: i));
-            String dayName = _getDayOfWeek(date.weekday);
-            if (busTiming.daysOfWeek.contains(dayName)) {
-              dates.add(date);
-            }
-          }
-          return dates;
-        }
-
-        final availableDates = getAvailableDates();
-        DateTime selectedDate = availableDates.isNotEmpty 
-            ? availableDates.first 
-            : normalizeDate(DateTime.now());
-        
-        // Get already booked time slots for the selected date
-        Set<String> getBookedTimeSlotsForDate(DateTime date) {
-          final normalizedDate = normalizeDate(date);
-          final bookedSlots = <String>{};
-          
-          for (var booking in busService.confirmedBookings) {
-            if (booking.busId == bus.id && 
-                booking.selectedBookingDate != null &&
-                booking.selectedTimeSlot != null) {
-              final bookingDate = normalizeDate(booking.selectedBookingDate!);
-              if (bookingDate == normalizedDate) {
-                bookedSlots.add(booking.selectedTimeSlot!);
-              }
-            }
-          }
-          
-          return bookedSlots;
-        }
-        
-        return StatefulBuilder(
-          builder: (context, setState) {
-            final selectedDayName = _getDayOfWeek(selectedDate.weekday);
-            final isBusRunningOnSelectedDay = busTiming.daysOfWeek.contains(selectedDayName);
-            final bookedTimeSlots = getBookedTimeSlotsForDate(selectedDate);
-            final availableTimings = busTiming.timings
-                .where((timing) => !bookedTimeSlots.contains(timing.time))
-                .toList();
-            
-            return AlertDialog(
-              title: const Text('Select Date & Time'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Bus: ${bus.busNumber}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    if (route != null) ...[
-                      Text('Route: ${route.routeName}'),
-                      const SizedBox(height: 8),
-                    ],
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Select Date:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<DateTime>(
-                          isExpanded: true,
-                          value: selectedDate,
-                          items: availableDates.map((date) {
-                            return DropdownMenuItem<DateTime>(
-                              value: date,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 16,
-                                    color: _isToday(date) ? AppTheme.primaryColor : Colors.grey,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${_formatDateOnly(date)} (${_getDayOfWeek(date.weekday)})',
-                                    style: TextStyle(
-                                      fontWeight: _isToday(date) ? FontWeight.bold : FontWeight.normal,
-                                      color: _isToday(date) ? AppTheme.primaryColor : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (DateTime? newDate) {
-                            if (newDate != null) {
-                              setState(() {
-                                selectedDate = DateTime(newDate.year, newDate.month, newDate.day);
-                                selectedTimeSlot = null; // Reset time slot when date changes
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (!isBusRunningOnSelectedDay) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.warning, color: Colors.orange),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Bus not scheduled for $selectedDayName',
-                                style: const TextStyle(color: Colors.orange),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    Text(
-                      'Operating Days:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(busTiming.daysOfWeek.join(', ')),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Available Time Slots:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    if (availableTimings.isEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.grey[600]),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'No available time slots for this date. You have already booked all available slots.',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ] else ...[
-                      ...availableTimings.map((timing) {
-                      final isSelected = selectedTimeSlot == timing.time;
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        color: isSelected 
-                          ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                          : null,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedTimeSlot = timing.time;
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                                  color: isSelected ? AppTheme.primaryColor : Colors.grey,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        timing.time,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: isSelected ? AppTheme.primaryColor : null,
-                                        ),
-                                      ),
-                                      if (timing.stopName.isNotEmpty)
-                                        Text(
-                                          timing.stopName,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                    ],
-                    if (bookedTimeSlots.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Already Booked:',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...bookedTimeSlots.map((timeSlot) {
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          color: Colors.grey.withValues(alpha: 0.1),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    timeSlot,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  'BOOKED',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                    const SizedBox(height: 8),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    const Text('Booking Fee: ₹50.00'),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: selectedTimeSlot == null
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        _navigateToSeatSelection(bus, route, busService, selectedTimeSlot!, selectedDate);
-                      },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedTimeSlot == null ? Colors.grey : AppTheme.primaryColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Continue'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _navigateToSeatSelection(Bus bus, BusRoute? route, BusService busService, String selectedTimeSlot, DateTime selectedDate) async {
-    final seatResult = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SeatSelectionPage(
-          bus: bus,
-          route: route,
-          selectedTimeSlot: selectedTimeSlot,
-          selectedBookingDate: selectedDate,
-        ),
-      ),
-    );
-
-    if (seatResult != null && seatResult is Map<String, dynamic>) {
-      // Show final confirmation with seat details
-      _showFinalBookingConfirmation(
-        bus, 
-        route, 
-        busService, 
-        selectedTimeSlot, 
-        selectedDate,
-        seatResult['seat']?.seatNumber as String?,
-        seatResult['gender'] as String?,
-      );
-    }
-  }
-
-  void _showFinalBookingConfirmation(
-    Bus bus, 
-    BusRoute? route, 
-    BusService busService, 
-    String selectedTimeSlot, 
-    DateTime selectedDate,
-    [String? seatNumber,
-    String? gender]
-  ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Booking'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Bus: ${bus.busNumber}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                if (route != null) ...[
-                  Text('Route: ${route.routeName}'),
-                  Text('Duration: ${route.estimatedDuration} min'),
-                  const SizedBox(height: 8),
-                ],
-                Text('Driver: ${bus.driverName}'),
-                Text('Available Seats: ${bus.availableSeats}'),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.primaryColor),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today, color: AppTheme.primaryColor, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Booking Date',
-                                  style: TextStyle(fontSize: 11, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${_formatDateOnly(selectedDate)} (${_getDayOfWeek(selectedDate.weekday)})',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: AppTheme.primaryColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Divider(height: 1),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.access_time, color: AppTheme.primaryColor, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Pickup Time',
-                                  style: TextStyle(fontSize: 11, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  selectedTimeSlot,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: AppTheme.primaryColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (seatNumber != null) ...[
-                        const SizedBox(height: 8),
-                        const Divider(height: 1),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.airline_seat_recline_normal, color: AppTheme.primaryColor, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Seat Number',
-                                    style: TextStyle(fontSize: 11, color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    seatNumber,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                      color: AppTheme.primaryColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text('Booking Fee: ₹50.00', style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                const Text(
-                  'Proceed to payment to confirm your booking.',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _navigateToPayment(bus, route, selectedTimeSlot, selectedDate, seatNumber, gender);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Proceed to Payment'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  String _getDayOfWeek(int weekday) {
-    switch (weekday) {
-      case 1: return 'Monday';
-      case 2: return 'Tuesday';
-      case 3: return 'Wednesday';
-      case 4: return 'Thursday';
-      case 5: return 'Friday';
-      case 6: return 'Saturday';
-      case 7: return 'Sunday';
-      default: return 'Unknown';
-    }
-  }
-
-  String _formatDateOnly(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  bool _isToday(DateTime date) {
-    final now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
-  }
-
-  Future<void> _navigateToPayment(Bus bus, BusRoute? route, String selectedTimeSlot, DateTime selectedDate, [String? seatNumber, String? gender]) async {
-    if (route == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Route information not found'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
-      return;
-    }
-
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentPage(
-          bus: bus, 
-          route: route,
-          selectedTimeSlot: selectedTimeSlot,
-          selectedDate: selectedDate,
-          seatNumber: seatNumber,
-          gender: gender,
-        ),
-      ),
-    );
-
-    if (result == true) {
-      // Payment successful
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Payment successful! Check your bookings page.'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
+    BookingFlowHelper.start(context, bus, route);
   }
 
   void _showLoadingDialog(String message) {

@@ -2,20 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/bus.dart';
 import '../../core/models/bus_route.dart';
+import '../../core/models/trip.dart';
 import '../../core/models/seat.dart';
 
 class SeatSelectionPage extends StatefulWidget {
-  final Bus bus;
+  // Legacy constructor (for backward compatibility)
+  final Bus? bus;
   final BusRoute? route;
   final String? selectedTimeSlot;
   final DateTime? selectedBookingDate;
 
+  // New constructor fields (for trip-based booking)
+  final Trip? trip;
+  final String? boardingStop;
+  final String? dropStop;
+  final String? boardingTime;
+  final String? dropTime;
+
   const SeatSelectionPage({
     super.key,
-    required this.bus,
+    this.bus,
     this.route,
     this.selectedTimeSlot,
     this.selectedBookingDate,
+    this.trip,
+    this.boardingStop,
+    this.dropStop,
+    this.boardingTime,
+    this.dropTime,
   });
 
   @override
@@ -70,23 +84,27 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         }
       }
 
-      // Fetch booked seats for this bus, time slot, and date
-      if (widget.selectedBookingDate != null && widget.selectedTimeSlot != null) {
+      // Fetch booked seats for this bus/trip, time slot, and date
+      final busId = widget.trip?.busId ?? widget.bus?.id;
+      final bookingDate = widget.trip?.tripDate ?? widget.selectedBookingDate;
+      final timeSlot = widget.trip?.departureTime ?? widget.selectedTimeSlot;
+
+      if (bookingDate != null && timeSlot != null && busId != null) {
         final bookingsSnapshot = await _firestore
             .collection('bookings')
-            .where('busId', isEqualTo: widget.bus.id)
-            .where('selectedTimeSlot', isEqualTo: widget.selectedTimeSlot)
+            .where('busId', isEqualTo: busId)
+            .where('selectedTimeSlot', isEqualTo: timeSlot)
             .where('status', isEqualTo: 'confirmed')
             .get();
 
         for (var bookingDoc in bookingsSnapshot.docs) {
           final bookingData = bookingDoc.data();
-          final bookingDate = (bookingData['selectedBookingDate'] as Timestamp?)?.toDate();
+          final bookingDateFromDb = (bookingData['selectedBookingDate'] as Timestamp?)?.toDate();
           
-          if (bookingDate != null &&
-              bookingDate.year == widget.selectedBookingDate!.year &&
-              bookingDate.month == widget.selectedBookingDate!.month &&
-              bookingDate.day == widget.selectedBookingDate!.day) {
+          if (bookingDateFromDb != null &&
+              bookingDateFromDb.year == bookingDate.year &&
+              bookingDateFromDb.month == bookingDate.month &&
+              bookingDateFromDb.day == bookingDate.day) {
             
             final seatNumber = bookingData['seatNumber'] as String?;
             final gender = bookingData['gender'] as String?;
